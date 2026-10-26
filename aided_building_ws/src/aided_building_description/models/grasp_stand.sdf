@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!-- Thin static stand under the hand TCP of the initial pose (spawned by sim.launch.py).
+     Its top (z = 0.477 once spawned) holds grasp_cylinder.sdf between the open fingers. It is only
+     10 mm wide along y, so the closing fingers pass on both sides of it. -->
+<sdf version="1.9">
+  <model name="grasp_stand">
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <geometry><box><size>0.04 0.01 0.477</size></box></geometry>
+      </collision>
+      <visual name="visual">
+        <geometry><box><size>0.04 0.01 0.477</size></box></geometry>
+        <material><ambient>0.3 0.3 0.3 1</ambient><diffuse>0.3 0.3 0.3 1</diffuse></material>
+      </visual>
+    </link>
+  </model>
+</sdf>

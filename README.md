@@ -129,6 +129,13 @@ aided_building_ws/
 4. Adicionar logging sincronizado, métricas experimentais e gerenciamento dos três cenários.
 5. Integrar E-stop físico, limitação de força e validação conforme ISO/TS 15066 antes de qualquer teste com hardware.
 
+## Garra (Franka Hand)
+
+O pacote `aided_building_gripper` expõe `/franka_gripper/{homing,move,grasp,gripper_action,stop}`
+com a mesma interface no Gazebo (`sim_gripper_server`) e no robô real (`franka_gripper` oficial).
+O `sim.launch.py` já inicia a garra simulada (`start_gripper:=false` para desativar).
+Detalhes e limitações em `aided_building_ws/src/aided_building_gripper/README.md`.
+
 ## Segurança
 
 Este repositório é uma base de simulação. Ele não substitui análise de risco, E-stop físico, limitação de força ou validação normativa. Nenhum teste com o robô real deve ser executado sem os dispositivos de segurança e a autorização correspondentes.

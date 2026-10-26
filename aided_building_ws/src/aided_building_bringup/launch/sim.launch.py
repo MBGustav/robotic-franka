@@ -64,6 +64,8 @@ def generate_launch_description():
     move_duration = LaunchConfiguration('move_duration')
     safe_zone_joints = LaunchConfiguration('safe_zone_joints')
     work_zone_joints = LaunchConfiguration('work_zone_joints')
+    start_gripper = LaunchConfiguration('start_gripper')
+    spawn_object = LaunchConfiguration('object')
 
     franka_share = get_package_share_directory('franka_description')
     description_share = get_package_share_directory('aided_building_description')
@@ -77,7 +79,7 @@ def generate_launch_description():
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(os.path.join(
             get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py')),
-        launch_arguments={'gz_args': '-r empty.sdf'}.items(),
+        launch_arguments={'gz_args': LaunchConfiguration('gz_args')}.items(),
     )
 
     clock_bridge = Node(
@@ -123,6 +125,7 @@ def generate_launch_description():
         name='arm_controller_spawner',
         arguments=[
             'fr3_arm_controller',
+            'fr3_gripper_controller',
             '--controller-manager-timeout', '300',
         ],
         parameters=[{'use_sim_time': True}],
@@ -176,7 +179,42 @@ def generate_launch_description():
         condition=IfCondition(spawn_operator_hand),
     )
 
+    # Both poses put the cylinder between the open fingers of the initial pose
+    # (hand TCP at x = 0.307, z = 0.487, fingers closing along y).
+    spawn_grasp_object = [
+        Node(
+            package='ros_gz_sim',
+            executable='create',
+            name=f'spawn_{name}',
+            arguments=[
+                '-name', name,
+                '-file', os.path.join(description_share, 'models', f'{name}.sdf'),
+                '-x', '0.307', '-y', '0.0', '-z', z, '-P', pitch,
+            ],
+            output='screen',
+            condition=IfCondition(spawn_object),
+        )
+        for name, z, pitch in (
+            ('grasp_stand', '0.2385', '0.0'),
+            ('grasp_cylinder', '0.487', '1.570796'),
+        )
+    ]
+
+    gripper = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(os.path.join(
+            get_package_share_directory('aided_building_gripper'),
+            'launch', 'gripper.launch.py')),
+        launch_arguments={
+            'use_sim': 'true',
+            'use_sim_time': use_sim_time,
+        }.items(),
+        condition=IfCondition(start_gripper),
+    )
+
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'gz_args', default_value='-r empty.sdf',
+            description="Gazebo arguments ('-r -s empty.sdf' runs without GUI)"),
         DeclareLaunchArgument(
             'xyz', default_value='0 0 0',
             description='Robot base position in the world'),
@@ -192,6 +230,12 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'start_comm', default_value='true',
             description='Start the simple ROS 2 command node'),
+        DeclareLaunchArgument(
+            'start_gripper', default_value='true',
+            description='Start the simulated gripper server (/franka_gripper/*)'),
+        DeclareLaunchArgument(
+            'object', default_value='false',
+            description='Spawn a 20 mm cylinder between the fingers to test grasp'),
         DeclareLaunchArgument(
             'scenario', default_value='scenario_1',
             description='Scenario profile from zones.yaml (scenario_1/2/3)'),
@@ -241,8 +285,10 @@ def generate_launch_description():
             args=[xyz, rpy, use_sim_time]),
         spawn_robot,
         spawn_operator_hand,
+        *spawn_grasp_object,
         TimerAction(period=5.0, actions=[load_controllers]),
         TimerAction(period=10.0, actions=[load_arm_controller]),
         rviz,
         comm,
+        gripper,
     ])

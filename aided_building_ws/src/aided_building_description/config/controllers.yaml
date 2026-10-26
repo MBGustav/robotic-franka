@@ -8,6 +8,9 @@ controller_manager:
     fr3_arm_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
+    fr3_gripper_controller:
+      type: position_controllers/JointGroupPositionController
+
 fr3_arm_controller:
   ros__parameters:
     joints:
@@ -35,3 +38,10 @@ fr3_arm_controller:
       fr3_joint5: {trajectory: 0.5, goal: 0.1}
       fr3_joint6: {trajectory: 0.5, goal: 0.1}
       fr3_joint7: {trajectory: 0.5, goal: 0.1}
+
+# Finger setpoints are ramped by aided_building_gripper/sim_gripper_server,
+# which exposes the same actions as the real franka_gripper node.
+fr3_gripper_controller:
+  ros__parameters:
+    joints:
+      - fr3_finger_joint1

@@ -1,0 +1,20 @@
+# Parameters of the simulated gripper (aided_building_gripper/sim_gripper_server).
+# Names and defaults mirror franka_gripper/config/franka_gripper_node.yaml.
+/**:
+  ros__parameters:
+    joint_names: [fr3_finger_joint1, fr3_finger_joint2]
+    command_topic: /fr3_gripper_controller/commands
+    max_width: 0.08          # [m]  Franka Hand stroke
+    max_speed: 0.1           # [m/s]
+    max_force: 70.0          # [N]  continuous force of the Franka Hand
+    default_speed: 0.1       # [m/s]
+    default_grasp_epsilon:
+      inner: 0.005           # [m]
+      outer: 0.005           # [m]
+    state_publish_rate: 15.0 # [Hz]
+    control_rate: 100.0      # [Hz] setpoint ramp rate
+    move_tolerance: 0.002    # [m]
+    stall_speed: 0.002       # [m/s] below this the fingers are considered stopped
+    stall_time: 0.3          # [s]
+    grasp_squeeze: 0.002     # [m]  hold setpoint below the contact width
+    limit_margin: 0.001      # [m]  fully open setpoint below max_width (Gazebo sticks at the joint limit)

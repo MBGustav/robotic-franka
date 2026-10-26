@@ -1,0 +1,31 @@
+# Controller manager of the real robot (real.launch.py), passed to the
+# official franka_bringup/franka.launch.py as `controllers_yaml`.
+# Subset of franka_bringup/config/controllers.yaml plus fr3_arm_controller,
+# the same controller name the Gazebo sim and franka_fr3_moveit_config use.
+# The fr3_arm_controller parameters are loaded by its spawner from
+# fr3_arm_controller_effort.yaml (robot) or fr3_arm_controller_position.yaml
+# (use_fake_hardware).
+/**:
+  controller_manager:
+    ros__parameters:
+      update_rate: 1000
+      thread_priority: 97
+      overruns:
+        manage: false
+        print_warnings: false
+
+      joint_state_broadcaster:
+        type: joint_state_broadcaster/JointStateBroadcaster
+
+      franka_robot_state_broadcaster:
+        type: franka_robot_state_broadcaster/FrankaRobotStateBroadcaster
+        state_interfaces:
+          robot_state
+
+      fr3_arm_controller:
+        type: joint_trajectory_controller/JointTrajectoryController
+
+/**:
+  franka_robot_state_broadcaster:
+    ros__parameters:
+      convenience_publish_rate: 1000
