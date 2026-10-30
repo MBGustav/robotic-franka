@@ -1,0 +1,6 @@
+# Datos de sesiones (pueden contener datos de participantes del piloto)
+logs/
+# Copias de seguridad que hace robot/grabar_poses.py
+datos/*.bak-*
+__pycache__/
+*.pyc
